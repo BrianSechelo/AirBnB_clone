@@ -3,17 +3,23 @@
 Module for console
 """
 import cmd
+import re
 import shlex
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.city import City
 
 class HBNBCommand(cmd.Cmd):
     """
-     HBNBCommand console class
+    HBNBCommand console class
     """
     prompt = "(hbnb)"
-    valid_classes = ["BaseModel", "User"]
+    valid_classes = ["BaseModel", "User", "Amenity", "Place", "Review", "State", "City"]
 
     def emptyline(self):
         """
@@ -103,7 +109,55 @@ class HBNBCommand(cmd.Cmd):
             for key, value in objects.items():
                 if key.split('.')[0] == commands[0]:
                     print(str(value))
-        
+
+    def default(self, arg):
+        """
+        Default behavior for cmd module when input is invalid
+        """
+        arg_list = arg.split('.')
+
+        incoming_class_name = arg_list[0]
+        command = arg_list[1].split('(')
+
+        incoming_method = command[0]
+
+        method_dict = {
+                'all': self.do_all,
+                'show': self.do_show,
+                'destroy': self.do_destroy,
+                'update': self.do_update,
+                'count': self.do_count
+                }
+        if incoming_method in method_dict.keys():
+            return method_dict[incoming_method]("{} {}".format(incoming_class_name, ''))
+
+        print("*** Uknown syntax: {}".format(arg))
+        return False
+
+    def do_count(self, arg):
+        """
+        Counts and retrieves the number of instances of a class
+        usage: <class name>.count()
+        """
+        objects = storage.all()
+
+        commands = shlex.split(arg)
+
+        if arg:
+            cls_nm = commands[0]
+
+        count = 0
+
+        if commands:
+            if cls_nm in self.valid_classes:
+                for obj in objects.values():
+                    if obj.__class__.__name__ == cls_nm:
+                        count += 1
+                print(count)
+            else:
+                print("** invalid class name **")
+        else:
+            print("** class name missing **")
     
     def do_update(self, arg):
         """
@@ -144,6 +198,7 @@ class HBNBCommand(cmd.Cmd):
 
     def help_quit(self, arg):
         """
+        Quit the HBNB
         """
         print("Quit command to exit the program")
 
