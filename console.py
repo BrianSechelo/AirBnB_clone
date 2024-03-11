@@ -144,14 +144,14 @@ class HBNBCommand(cmd.Cmd):
         commands = shlex.split(arg)
 
         if arg:
-            cls_nm = commands[0]
+            incoming_class_name = commands[0]
 
         count = 0
 
         if commands:
-            if cls_nm in self.valid_classes:
+            if incoming_class_name in self.valid_classes:
                 for obj in objects.values():
-                    if obj.__class__.__name__ == cls_nm:
+                    if obj.__class__.__name__ == incoming_class_name:
                         count += 1
                 print(count)
             else:
